@@ -46,13 +46,16 @@ namespace MovieMover
 
         public static void MoveFolder(string source, string destination)
         {
+            
             if (Directory.Exists(destination))
             {
                 Logger.LogInfo("Could not move the folder to {0}, as it already exists", destination);
             }
             else
             {
+                Logger.LogInfo("Moving from {0} to {1}...", source, destination);
                 Directory.Move(source, destination);
+                Logger.LogInfo("Move from {0} to {1}...Complete", source, destination);
             }
         }
     }
