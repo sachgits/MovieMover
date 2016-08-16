@@ -10,7 +10,7 @@ namespace MovieMover
     {
         public string SourceFolder { get; set; }
 
-        public string DestinationFolder { get; set; }
+        // public string DestinationFolder { get; set; }
 
         public string ApiKey { get; set; }
 
@@ -20,7 +20,7 @@ namespace MovieMover
         {
             var builder = new StringBuilder();
             builder.AppendFormat("SourceFolder: {0}\r\n", SourceFolder);
-            builder.AppendFormat("DestinationFolder: {0}\r\n", DestinationFolder);
+            //builder.AppendFormat("DestinationFolder: {0}\r\n", DestinationFolder);
             builder.AppendFormat("ApiKey: {0}\r\n", ApiKey);
             builder.AppendFormat("FtpDetails: {0}\r\n", FtpDetails);
             return builder.ToString();

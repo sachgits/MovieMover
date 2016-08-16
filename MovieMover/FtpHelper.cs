@@ -14,8 +14,17 @@ namespace MovieMover
         {
             using (var ftp = new Ftp())
             {
+                long currentPercentage = 0;
                 ftp.Connect(parameters.Address, parameters.Port);
                 ftp.Login(parameters.UserName, parameters.Password);
+                ftp.Progress += (sender, args) =>
+                {
+                    if (currentPercentage < args.Percentage)
+                    {
+                        Logger.LogInfo("Uploaded {0} of {1} bytes {2}%", args.TotalBytesTransferred, args.TotalBytesToTransfer, args.Percentage);
+                        currentPercentage = args.Percentage;
+                    }
+                };
 
                 if (!ftp.FolderExists(targetFolder))
                 {

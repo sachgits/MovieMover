@@ -15,8 +15,8 @@ namespace MovieMover
             var parameters = new Parameters()
             {
                 SourceFolder = args[0].EndsWith("\\") ? args[0] : args[0] + "\\",
-                DestinationFolder = args[1].EndsWith("\\") ? args[1] : args[1] + "\\",
-                ApiKey = args.Length > 2 ? args[2] : ConfigurationManager.AppSettings["apiKey"],
+                // DestinationFolder = args[1].EndsWith("\\") ? args[1] : args[1] + "\\",
+                ApiKey = args.Length > 1 ? args[1] : ConfigurationManager.AppSettings["apiKey"],
                 FtpDetails = new FtpParameters()
                 {
                     Address = ConfigurationManager.AppSettings["ftpHost"],
@@ -34,11 +34,11 @@ namespace MovieMover
             }
 
 
-            if (!Directory.Exists(parameters.DestinationFolder))
-            {
-                Logger.LogInfo("Folder {0}, does not exist - exiting", parameters.DestinationFolder);
-                return;
-            }
+            //if (!Directory.Exists(parameters.DestinationFolder))
+            //{
+            //    Logger.LogInfo("Folder {0}, does not exist - exiting", parameters.DestinationFolder);
+            //    return;
+            //}
 
             if (String.IsNullOrEmpty(parameters.ApiKey) || parameters.ApiKey == "AddYourApiKeyHere")
             {
@@ -61,11 +61,15 @@ namespace MovieMover
                     {
                         //LookupDetailsAndMoveFolder(parameters, folder);
                         LookupDetailsAndUploadFolder(parameters, folder);
+
+                        Logger.LogInfo("Deleting folder {0}", folder);
+                        Directory.Delete(folder, true);
+                        Logger.LogInfo("Folder {0} deleted", folder);
                     }
                     catch (Exception ex)
                     {
                         Logger.LogException(ex, "Exception occured moving {0}", folder);
-                    }
+                    }                    
                 }
             }
         }
@@ -99,33 +103,33 @@ namespace MovieMover
             FtpHelper.UploadFolder(parameters.FtpDetails, targetFolder, source);
         }
 
-        public static void LookupDetailsAndMoveFolder(Parameters parameters, string source)
-        {
-            var folderName = new DirectoryInfo(source).Name;
-            var targetFolder = parameters.DestinationFolder + folderName;
+        //public static void LookupDetailsAndMoveFolder(Parameters parameters, string source)
+        //{
+        //    var folderName = new DirectoryInfo(source).Name;
+        //    var targetFolder = parameters.DestinationFolder + folderName;
 
-            // Check if the folder doesn't already has a year on it "The Avengers (2011)"
-            if (!Regex.IsMatch(folderName, @"^[\s\S]*\s\(\d{4}\)$"))
-            {
-                var client = new TMDbClient(parameters.ApiKey);
-                var results = client.SearchMovie(folderName);
+        //    // Check if the folder doesn't already has a year on it "The Avengers (2011)"
+        //    if (!Regex.IsMatch(folderName, @"^[\s\S]*\s\(\d{4}\)$"))
+        //    {
+        //        var client = new TMDbClient(parameters.ApiKey);
+        //        var results = client.SearchMovie(folderName);
 
-                Logger.LogInfo($"Got back {results.TotalResults:N0} results");
+        //        Logger.LogInfo($"Got back {results.TotalResults:N0} results");
 
-                if (results.Results.Count < 1)
-                {
-                    return;
-                }
+        //        if (results.Results.Count < 1)
+        //        {
+        //            return;
+        //        }
 
-                var result = results.Results[0]; // use the first
-                targetFolder = String.Format(
-                    "{0}{1} ({2:yyyy})",
-                    parameters.DestinationFolder,
-                    FileHelper.RemoveIllegalFolderCharacters(result.Title),
-                    result.ReleaseDate);
-            }
+        //        var result = results.Results[0]; // use the first
+        //        targetFolder = String.Format(
+        //            "{0}{1} ({2:yyyy})",
+        //            parameters.DestinationFolder,
+        //            FileHelper.RemoveIllegalFolderCharacters(result.Title),
+        //            result.ReleaseDate);
+        //    }
 
-            FileHelper.MoveFolder(source, targetFolder);
-        }
+        //    FileHelper.MoveFolder(source, targetFolder);
+        //}
     }
 }
